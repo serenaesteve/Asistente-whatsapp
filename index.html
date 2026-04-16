@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WA·BOT — Asistente WhatsApp con IA</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --pink:#E8196E;
+  --pink-dark:#C41059;
+  --pink-deep:#A0004A;
+  --yellow:#FFD93D;
+  --teal:#00BFA5;
+  --white:#fff;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Nunito Sans',sans-serif;background:#E8196E;overflow-x:hidden;}
+
+/* ── NAV ── */
+nav{display:flex;align-items:center;justify-content:space-between;padding:18px 48px;background:var(--pink);position:sticky;top:0;z-index:100;}
+.logo{font-family:'Nunito',sans-serif;font-weight:900;font-size:22px;color:#fff;letter-spacing:-0.5px;text-decoration:none;}
+.logo span{color:var(--yellow);}
+.nav-links{display:flex;gap:32px;list-style:none;}
+.nav-links a{color:rgba(255,255,255,0.85);text-decoration:none;font-size:13px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;transition:color .2s;}
+.nav-links a:hover{color:#fff;}
+.nav-actions{display:flex;gap:12px;align-items:center;}
+.btn-ghost{color:#fff;background:transparent;border:2px solid rgba(255,255,255,0.3);padding:8px 20px;border-radius:30px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;text-decoration:none;transition:all .2s;}
+.btn-ghost:hover{border-color:#fff;background:rgba(255,255,255,0.1);}
+.btn-yellow{background:var(--yellow);color:var(--pink-dark);border:none;padding:10px 22px;border-radius:30px;font-size:13px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;text-decoration:none;transition:transform .15s,opacity .2s;}
+.btn-yellow:hover{opacity:.9;transform:translateY(-1px);}
+
+/* ── HERO ── */
+.hero{display:grid;grid-template-columns:1fr 1fr;min-height:500px;padding:40px 48px 0;align-items:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;width:500px;height:500px;border-radius:50%;background:rgba(255,255,255,.06);top:-200px;right:-100px;pointer-events:none;}
+.hero::after{content:'';position:absolute;width:280px;height:280px;border-radius:50%;background:rgba(255,255,255,.05);bottom:-100px;left:30%;pointer-events:none;}
+.hero-left{z-index:2;}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.18);border-radius:30px;padding:6px 16px;margin-bottom:20px;}
+.hero-tag-dot{width:8px;height:8px;background:var(--yellow);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.3);}}
+.hero-tag span{color:#fff;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;}
+.hero-h1{font-family:'Nunito',sans-serif;font-weight:900;font-size:62px;line-height:.97;color:#fff;margin-bottom:20px;letter-spacing:-2px;}
+.hero-sub{color:rgba(255,255,255,.85);font-size:15px;line-height:1.7;max-width:360px;margin-bottom:32px;}
+.hero-cta{display:flex;gap:14px;align-items:center;flex-wrap:wrap;}
+.btn-cta{display:inline-flex;align-items:center;gap:0;background:var(--yellow);border:none;border-radius:40px;overflow:hidden;cursor:pointer;font-family:'Nunito',sans-serif;text-decoration:none;transition:transform .15s;}
+.btn-cta:hover{transform:translateY(-2px);}
+.btn-cta-text{color:var(--pink-dark);font-weight:900;font-size:13px;padding:14px 22px;letter-spacing:.04em;text-transform:uppercase;}
+.btn-cta-arrow{background:var(--teal);width:46px;height:46px;display:flex;align-items:center;justify-content:center;border-radius:50%;margin:2px;}
+.hero-link{color:rgba(255,255,255,.75);font-size:13px;font-weight:700;text-decoration:underline;cursor:pointer;}
+.hero-right{position:relative;display:flex;justify-content:center;align-items:flex-end;height:420px;}
+.char-wrap{position:absolute;bottom:0;left:50%;transform:translateX(-50%);}
+.char-shadow{width:110px;height:16px;background:rgba(0,0,0,.2);border-radius:50%;margin:0 auto;}
+.float-card{background:#fff;border-radius:18px;padding:12px 16px;position:absolute;animation:float 3s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.fc-left{bottom:80px;left:0;display:flex;align-items:center;gap:10px;animation-delay:0s;}
+.fc-right{top:40px;right:0;display:flex;align-items:center;gap:8px;padding:10px 14px;animation-delay:1.5s;}
+.fc-icon{width:38px;height:38px;background:#FFF0E0;border-radius:12px;display:flex;align-items:center;justify-content:center;}
+.fc-num{font-family:'Nunito',sans-serif;font-weight:900;font-size:20px;color:var(--pink-dark);}
+.fc-lbl{font-size:11px;color:#999;font-weight:700;}
+.fc-dot{width:10px;height:10px;background:var(--teal);border-radius:50%;}
+.fc-txt{font-size:12px;font-weight:700;color:#333;font-family:'Nunito',sans-serif;}
+.game-float{position:absolute;bottom:130px;left:-10px;background:#fff;border-radius:16px;padding:12px;animation:float 3s ease-in-out infinite;animation-delay:.8s;}
+
+/* ── CASES BAR ── */
+.cases-bar{background:var(--pink-dark);padding:18px 48px;display:flex;align-items:center;gap:24px;}
+.cases-label{color:rgba(255,255,255,.55);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;flex-shrink:0;}
+.cases-items{display:flex;gap:10px;flex-wrap:wrap;}
+.case-pill{background:rgba(255,255,255,.12);border-radius:20px;padding:6px 16px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Nunito',sans-serif;}
+.case-pill:hover,.case-pill.active{background:var(--yellow);color:var(--pink-dark);}
+
+/* ── STATS ── */
+.stats-row{background:var(--pink-deep);display:grid;grid-template-columns:repeat(4,1fr);}
+.stat-box{padding:28px 20px;text-align:center;border-right:1px solid rgba(255,255,255,.12);}
+.stat-box:last-child{border-right:none;}
+.stat-num{font-family:'Nunito',sans-serif;font-weight:900;font-size:32px;color:#fff;}
+.stat-lbl{font-size:12px;color:rgba(255,255,255,.6);margin-top:4px;font-weight:600;letter-spacing:.03em;}
+
+/* ── FEATURES ── */
+.features{background:#fff;padding:80px 48px;}
+.section-tag{display:inline-block;background:#FBEAF0;color:var(--pink);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:6px 16px;border-radius:20px;margin-bottom:16px;}
+.section-h2{font-family:'Nunito',sans-serif;font-weight:900;font-size:40px;color:#111;letter-spacing:-1px;margin-bottom:12px;}
+.section-h2 span{color:var(--pink);}
+.section-sub{font-size:15px;color:#777;max-width:500px;line-height:1.7;margin-bottom:48px;}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+.feat-card{border:2px solid #F0F0F0;border-radius:20px;padding:28px;transition:all .2s;cursor:default;}
+.feat-card:hover{border-color:var(--pink);transform:translateY(-4px);}
+.feat-icon{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:18px;}
+.feat-icon.pink{background:#FBEAF0;}
+.feat-icon.yellow{background:#FFF8E1;}
+.feat-icon.teal{background:#E0F5F2;}
+.feat-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;color:#111;margin-bottom:8px;}
+.feat-desc{font-size:14px;color:#777;line-height:1.6;}
+
+/* ── HOW IT WORKS ── */
+.how{background:#FAFAFA;padding:80px 48px;}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:48px;position:relative;}
+.steps::before{content:'';position:absolute;top:28px;left:10%;right:10%;height:2px;background:repeating-linear-gradient(90deg,#E8196E 0,#E8196E 8px,transparent 8px,transparent 16px);}
+.step{text-align:center;position:relative;}
+.step-num{width:56px;height:56px;border-radius:50%;background:var(--pink);color:#fff;font-family:'Nunito',sans-serif;font-weight:900;font-size:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;position:relative;z-index:1;border:4px solid #FAFAFA;}
+.step-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:16px;color:#111;margin-bottom:8px;}
+.step-desc{font-size:13px;color:#888;line-height:1.6;}
+
+/* ── PRICING ── */
+.pricing{background:#fff;padding:80px 48px;}
+.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px;}
+.plan-card{border:2px solid #F0F0F0;border-radius:24px;padding:32px;transition:all .2s;}
+.plan-card.featured{border-color:var(--pink);background:var(--pink);color:#fff;transform:scale(1.04);}
+.plan-badge{display:inline-block;background:var(--yellow);color:var(--pink-dark);font-size:11px;font-weight:900;padding:4px 12px;border-radius:20px;margin-bottom:16px;font-family:'Nunito',sans-serif;}
+.plan-name{font-family:'Nunito',sans-serif;font-weight:900;font-size:20px;color:#111;margin-bottom:6px;}
+.plan-card.featured .plan-name{color:#fff;}
+.plan-price{font-family:'Nunito',sans-serif;font-weight:900;font-size:44px;color:var(--pink);margin:16px 0 4px;}
+.plan-card.featured .plan-price{color:var(--yellow);}
+.plan-per{font-size:13px;color:#999;margin-bottom:20px;}
+.plan-card.featured .plan-per{color:rgba(255,255,255,.7);}
+.plan-features{list-style:none;margin-bottom:28px;}
+.plan-features li{display:flex;align-items:center;gap:8px;font-size:13px;color:#555;padding:6px 0;border-bottom:1px solid #F5F5F5;}
+.plan-card.featured .plan-features li{color:rgba(255,255,255,.9);border-color:rgba(255,255,255,.15);}
+.plan-features li::before{content:'';width:18px;height:18px;border-radius:50%;background:#E8F5E9;flex-shrink:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234CAF50'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");background-size:contain;}
+.plan-card.featured .plan-features li::before{background-color:rgba(255,255,255,.2);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");}
+.btn-plan{width:100%;padding:14px;border-radius:40px;font-family:'Nunito',sans-serif;font-weight:900;font-size:14px;cursor:pointer;border:2px solid var(--pink);background:transparent;color:var(--pink);letter-spacing:.03em;text-transform:uppercase;transition:all .2s;}
+.btn-plan:hover{background:var(--pink);color:#fff;}
+.plan-card.featured .btn-plan{background:var(--yellow);color:var(--pink-dark);border-color:var(--yellow);}
+.plan-card.featured .btn-plan:hover{opacity:.9;}
+
+/* ── CTA BANNER ── */
+.cta-banner{background:var(--pink);padding:80px 48px;text-align:center;}
+.cta-banner h2{font-family:'Nunito',sans-serif;font-weight:900;font-size:46px;color:#fff;letter-spacing:-1.5px;margin-bottom:16px;}
+.cta-banner p{color:rgba(255,255,255,.8);font-size:16px;margin-bottom:32px;}
+.cta-banner .btn-cta{margin:0 auto;}
+
+/* ── FOOTER ── */
+footer{background:var(--pink-deep);padding:40px 48px;display:flex;align-items:center;justify-content:space-between;}
+.footer-logo{font-family:'Nunito',sans-serif;font-weight:900;font-size:20px;color:#fff;}
+.footer-logo span{color:var(--yellow);}
+.footer-links{display:flex;gap:24px;}
+.footer-links a{color:rgba(255,255,255,.6);font-size:13px;text-decoration:none;font-weight:600;transition:color .2s;}
+.footer-links a:hover{color:#fff;}
+.footer-copy{color:rgba(255,255,255,.4);font-size:12px;}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  nav{padding:14px 20px;}
+  .nav-links,.nav-actions .btn-ghost{display:none;}
+  .hero{grid-template-columns:1fr;padding:30px 20px 0;min-height:auto;}
+  .hero-right{height:300px;}
+  .hero-h1{font-size:42px;}
+  .features-grid,.plans-grid,.steps{grid-template-columns:1fr;}
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+  .features,.how,.pricing,.cta-banner{padding:50px 20px;}
+  .plan-card.featured{transform:scale(1);}
+  .steps::before{display:none;}
+  footer{flex-direction:column;gap:16px;text-align:center;padding:30px 20px;}
+  .cases-bar{padding:14px 20px;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="logo" href="#">WA<span>·</span>BOT</a>
+  <ul class="nav-links">
+    <li><a href="#features">Funciones</a></li>
+    <li><a href="#how">Cómo funciona</a></li>
+    <li><a href="#pricing">Precios</a></li>
+    <li><a href="#contact">Contacto</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a class="btn-ghost" href="/admin">Panel Admin</a>
+    <a class="btn-yellow" href="#pricing">Empezar gratis</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-tag">
+      <div class="hero-tag-dot"></div>
+      <span>Asistente WhatsApp con IA</span>
+    </div>
+    <h1 class="hero-h1">Responde<br>sin parar<br>las 24h</h1>
+    <p class="hero-sub">Configura tus preguntas frecuentes, define las respuestas y deja que tu asistente inteligente atienda a todos tus clientes automáticamente.</p>
+    <div class="hero-cta">
+      <a class="btn-cta" href="#pricing">
+        <span class="btn-cta-text">Empieza gratis 10 días</span>
+        <span class="btn-cta-arrow">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </span>
+      </a>
+      <a class="hero-link" href="#how">Ver cómo funciona</a>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <!-- Personaje SVG -->
+    <div class="char-wrap">
+      <svg width="180" height="240" viewBox="0 0 180 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Sombra -->
+        <ellipse cx="90" cy="228" rx="50" ry="12" fill="rgba(0,0,0,0.18)"/>
+        <!-- Piernas -->
+        <rect x="58" y="148" width="26" height="66" rx="13" fill="#00BFA5"/>
+        <rect x="96" y="148" width="26" height="66" rx="13" fill="#00BFA5"/>
+        <!-- Zapatos -->
+        <rect x="54" y="198" width="32" height="18" rx="9" fill="#FFD93D"/>
+        <rect x="94" y="198" width="32" height="18" rx="9" fill="#FFD93D"/>
+        <!-- Cuerpo -->
+        <rect x="36" y="88" width="108" height="76" rx="34" fill="#F4845F"/>
+        <!-- Brazos -->
+        <rect x="18" y="96" width="26" height="46" rx="13" fill="#F4845F"/>
+        <rect x="136" y="96" width="26" height="46" rx="13" fill="#F4845F"/>
+        <!-- Mano con objeto (izquierda: helado) -->
+        <circle cx="22" cy="96" r="12" fill="#F4845F"/>
+        <!-- Mano (derecha: tablet) -->
+        <rect x="138" y="104" width="18" height="24" rx="4" fill="#1DE9B6"/>
+        <rect x="140" y="108" width="14" height="4" rx="2" fill="rgba(255,255,255,0.7)"/>
+        <rect x="140" y="115" width="10" height="4" rx="2" fill="rgba(255,255,255,0.4)"/>
+        <!-- Helado -->
+        <circle cx="22" cy="78" r="9" fill="#FF80AB"/>
+        <circle cx="30" cy="80" r="9" fill="#FFCC02"/>
+        <circle cx="14" cy="80" r="9" fill="#80D8FF"/>
+        <rect x="19" y="86" width="6" height="16" rx="3" fill="#FFD93D"/>
+        <!-- Cabeza -->
+        <circle cx="90" cy="54" r="44" fill="#F4845F"/>
+        <!-- Gorro -->
+        <ellipse cx="90" cy="14" rx="34" ry="6" fill="#C41059"/>
+        <polygon points="90,0 56,16 124,16" fill="#E8196E"/>
+        <rect x="82" y="0" width="16" height="14" rx="4" fill="#C41059"/>
+        <circle cx="90" cy="1" r="5" fill="#FFD93D"/>
+        <!-- Gafas -->
+        <rect x="58" y="44" width="28" height="20" rx="10" fill="#29B6F6" opacity="0.9"/>
+        <rect x="94" y="44" width="28" height="20" rx="10" fill="#29B6F6" opacity="0.9"/>
+        <line x1="86" y1="54" x2="94" y2="54" stroke="#0D47A1" stroke-width="2.5"/>
+        <line x1="44" y1="54" x2="58" y2="54" stroke="#0D47A1" stroke-width="2"/>
+        <line x1="122" y1="54" x2="136" y2="54" stroke="#0D47A1" stroke-width="2"/>
+        <!-- Ojos -->
+        <circle cx="72" cy="54" r="5" fill="white"/>
+        <circle cx="108" cy="54" r="5" fill="white"/>
+        <circle cx="73" cy="55" r="3" fill="#1A237E"/>
+        <circle cx="109" cy="55" r="3" fill="#1A237E"/>
+        <circle cx="74" cy="54" r="1" fill="white"/>
+        <circle cx="110" cy="54" r="1" fill="white"/>
+        <!-- Sonrisa -->
+        <path d="M76 70 Q90 80 104 70" stroke="#333" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <!-- Mejillas -->
+        <circle cx="62" cy="66" r="7" fill="#FF8A65" opacity="0.5"/>
+        <circle cx="118" cy="66" r="7" fill="#FF8A65" opacity="0.5"/>
+        <!-- Plataforma -->
+        <ellipse cx="90" cy="222" rx="44" ry="12" fill="#D4155E"/>
+        <ellipse cx="90" cy="216" rx="44" ry="12" fill="#E8196E"/>
+      </svg>
+    </div>
+
+    <!-- Tarjeta izquierda -->
+    <div class="float-card fc-left">
+      <div class="fc-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="#E8196E"><path d="M20 2H4a2 2 0 00-2 2v18l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2z"/></svg>
+      </div>
+      <div>
+        <div class="fc-num">2.4K</div>
+        <div class="fc-lbl">Respuestas hoy</div>
+      </div>
+    </div>
+
+    <!-- Tarjeta derecha -->
+    <div class="float-card fc-right">
+      <div class="fc-dot"></div>
+      <div class="fc-txt">Bot activo ahora</div>
+    </div>
+
+    <!-- Gamepad flotante -->
+    <div class="game-float">
+      <svg width="38" height="38" viewBox="0 0 38 38" fill="none">
+        <rect width="38" height="38" rx="10" fill="#FFF0E0"/>
+        <circle cx="19" cy="19" r="10" fill="none" stroke="#FF9800" stroke-width="2"/>
+        <line x1="19" y1="9" x2="19" y2="29" stroke="#FF9800" stroke-width="2.5"/>
+        <line x1="9" y1="19" x2="29" y2="19" stroke="#FF9800" stroke-width="2.5"/>
+        <circle cx="13" cy="19" r="3" fill="#E91E8C"/>
+        <circle cx="25" cy="19" r="3" fill="#00BCD4"/>
+        <circle cx="19" cy="13" r="3" fill="#4CAF50"/>
+        <circle cx="19" cy="25" r="3" fill="#FFD700"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- CASES BAR -->
+<div class="cases-bar">
+  <span class="cases-label">Casos de uso</span>
+  <div class="cases-items">
+    <span class="case-pill active">E-commerce</span>
+    <span class="case-pill">Restaurantes</span>
+    <span class="case-pill">Clínicas</span>
+    <span class="case-pill">Inmobiliarias</span>
+    <span class="case-pill">Academias</span>
+    <span class="case-pill">Tiendas locales</span>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-row">
+  <div class="stat-box"><div class="stat-num">98%</div><div class="stat-lbl">Tasa de respuesta</div></div>
+  <div class="stat-box"><div class="stat-num">24/7</div><div class="stat-lbl">Disponibilidad</div></div>
+  <div class="stat-box"><div class="stat-num">3 min</div><div class="stat-lbl">Setup inicial</div></div>
+  <div class="stat-box"><div class="stat-num">+500</div><div class="stat-lbl">Negocios activos</div></div>
+</div>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-tag">Funciones</div>
+  <h2 class="section-h2">Todo lo que necesitas<br>para <span>automatizar</span></h2>
+  <p class="section-sub">Sin código, sin complicaciones. Configura tu asistente en minutos y empieza a responder al instante.</p>
+  <div class="features-grid">
+    <div class="feat-card">
+      <div class="feat-icon pink">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="#E8196E"><path d="M20 2H4a2 2 0 00-2 2v18l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2z"/></svg>
+      </div>
+      <div class="feat-title">FAQs inteligentes</div>
+      <p class="feat-desc">Define preguntas, palabras clave y respuestas. El bot detecta la intención del cliente automáticamente.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon yellow">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="#F59E0B"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+      </div>
+      <div class="feat-title">Panel de control</div>
+      <p class="feat-desc">Administra todas tus respuestas desde un panel visual limpio. Edita, añade o elimina en segundos.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon teal">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="#00BFA5"><path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm-7 3a4 4 0 110 8 4 4 0 010-8zm0 10c-2.67 0-8 1.34-8 4v1h16v-1c0-2.66-5.33-4-8-4z"/></svg>
+      </div>
+      <div class="feat-title">Sin límite de clientes</div>
+      <p class="feat-desc">Un solo bot atiende a miles de clientes simultáneamente. Sin esperas, sin colas, sin agentes adicionales.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon pink">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="#E8196E"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+      </div>
+      <div class="feat-title">Estadísticas en tiempo real</div>
+      <p class="feat-desc">Monitoriza cuántos mensajes recibe tu bot, qué preguntas no sabe responder y la tasa de acierto.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon yellow">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="#F59E0B"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+      </div>
+      <div class="feat-title">Respuesta de fallback</div>
+      <p class="feat-desc">Cuando el bot no sabe responder, avisa automáticamente a un agente humano para que tome el control.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon teal">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="#00BFA5"><path d="M13 2.05V4.05C17.39 4.59 20.5 8.58 19.96 12.97C19.5 16.61 16.64 19.5 13 19.93V21.93C18.5 21.38 22.5 16.5 21.95 11C21.5 6.25 17.73 2.5 13 2.05M11 2.06C9.05 2.25 7.19 3 5.67 4.26L7.1 5.74C8.22 4.84 9.57 4.26 11 4.06V2.06M4.26 5.67C3 7.19 2.25 9.04 2.05 11H4.05C4.24 9.58 4.8 8.23 5.69 7.1L4.26 5.67M2.06 13C2.26 14.96 3.03 16.81 4.27 18.33L5.69 16.9C4.81 15.77 4.24 14.42 4.06 13H2.06M7.1 18.37L5.67 19.74C7.18 21 9.04 21.79 11 22V20C9.58 19.82 8.23 19.25 7.1 18.37Z"/></svg>
+      </div>
+      <div class="feat-title">Integración WhatsApp real</div>
+      <p class="feat-desc">Compatible con Twilio Sandbox y Meta Cloud API. Conecta tu número de WhatsApp Business en minutos.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div style="text-align:center;">
+    <div class="section-tag">Proceso</div>
+    <h2 class="section-h2" style="text-align:center;">Empieza en <span>4 pasos</span></h2>
+    <p class="section-sub" style="margin:0 auto 0;">Desde cero hasta recibir mensajes automatizados en menos de 10 minutos.</p>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-title">Regístrate</div>
+      <p class="step-desc">Crea tu cuenta en segundos. Sin tarjeta de crédito para el periodo de prueba.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-title">Configura tu bot</div>
+      <p class="step-desc">Añade el nombre de tu negocio, el mensaje de bienvenida y las FAQs.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-title">Conecta WhatsApp</div>
+      <p class="step-desc">Vincula tu número de WhatsApp Business con Twilio o Meta Cloud API.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-title">¡Listo!</div>
+      <p class="step-desc">Tu bot empieza a responder automáticamente a todos tus clientes al instante.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="section-tag">Precios</div>
+  <h2 class="section-h2">Planes para <span>cada negocio</span></h2>
+  <p class="section-sub">Empieza gratis y escala cuando lo necesites. Sin permanencia, cancela cuando quieras.</p>
+  <div class="plans-grid">
+    <div class="plan-card">
+      <div class="plan-name">Básico</div>
+      <div class="plan-price">0€</div>
+      <div class="plan-per">gratis para siempre</div>
+      <ul class="plan-features">
+        <li>Hasta 10 FAQs</li>
+        <li>100 mensajes/mes</li>
+        <li>1 número de WhatsApp</li>
+        <li>Panel de administración</li>
+        <li>Estadísticas básicas</li>
+      </ul>
+      <button class="btn-plan" onclick="location.href='/admin'">Empezar gratis</button>
+    </div>
+    <div class="plan-card featured">
+      <div class="plan-badge">MÁS POPULAR</div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-price">29€</div>
+      <div class="plan-per">por mes</div>
+      <ul class="plan-features">
+        <li>FAQs ilimitadas</li>
+        <li>5.000 mensajes/mes</li>
+        <li>3 números de WhatsApp</li>
+        <li>Estadísticas avanzadas</li>
+        <li>Soporte prioritario</li>
+      </ul>
+      <button class="btn-plan" onclick="location.href='/admin'">Empezar Pro</button>
+    </div>
+    <div class="plan-card">
+      <div class="plan-name">Enterprise</div>
+      <div class="plan-price">99€</div>
+      <div class="plan-per">por mes</div>
+      <ul class="plan-features">
+        <li>Todo de Pro</li>
+        <li>Mensajes ilimitados</li>
+        <li>Números ilimitados</li>
+        <li>API personalizada</li>
+        <li>Onboarding dedicado</li>
+      </ul>
+      <button class="btn-plan">Contactar</button>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<section class="cta-banner" id="contact">
+  <h2>¿Listo para automatizar<br>tu WhatsApp?</h2>
+  <p>Únete a más de 500 negocios que ya no pierden ningún mensaje.</p>
+  <a class="btn-cta" href="/admin">
+    <span class="btn-cta-text">Ir al panel ahora</span>
+    <span class="btn-cta-arrow">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </span>
+  </a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">WA<span>·</span>BOT</div>
+  <div class="footer-links">
+    <a href="#features">Funciones</a>
+    <a href="#pricing">Precios</a>
+    <a href="/admin">Panel Admin</a>
+  </div>
+  <div class="footer-copy">© 2025 WA·BOT. Todos los derechos reservados.</div>
+</footer>
+
+<script>
+document.querySelectorAll('.case-pill').forEach(p => {
+  p.addEventListener('click', () => {
+    document.querySelectorAll('.case-pill').forEach(x => x.classList.remove('active'));
+    p.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

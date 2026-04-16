@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WA·BOT — Panel de Control</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --pink:#E8196E;
+  --pink-dark:#C41059;
+  --pink-deep:#A0004A;
+  --yellow:#FFD93D;
+  --teal:#00BFA5;
+  --bg:#F7F0F3;
+}
+body{font-family:'Nunito Sans',sans-serif;background:var(--bg);min-height:100vh;display:flex;}
+
+/* SIDEBAR */
+.sidebar{width:240px;background:var(--pink-dark);min-height:100vh;display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;}
+.sidebar-logo{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,.1);}
+.logo{font-family:'Nunito',sans-serif;font-weight:900;font-size:20px;color:#fff;text-decoration:none;display:block;}
+.logo span{color:var(--yellow);}
+.logo-sub{color:rgba(255,255,255,.5);font-size:11px;margin-top:3px;font-weight:600;}
+.sidebar-nav{flex:1;padding:12px 10px;}
+.nav-section{color:rgba(255,255,255,.4);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:12px 10px 6px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;cursor:pointer;color:rgba(255,255,255,.7);font-size:13px;font-weight:600;margin-bottom:2px;transition:all .15s;text-decoration:none;}
+.nav-item:hover{background:rgba(255,255,255,.1);color:#fff;}
+.nav-item.active{background:rgba(255,255,255,.18);color:#fff;}
+.nav-item svg{flex-shrink:0;opacity:.8;}
+.sidebar-footer{padding:16px;border-top:1px solid rgba(255,255,255,.1);}
+.btn-landing{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.6);font-size:12px;font-weight:600;text-decoration:none;padding:8px 10px;border-radius:10px;transition:all .2s;}
+.btn-landing:hover{background:rgba(255,255,255,.1);color:#fff;}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
+.topbar{background:#fff;border-bottom:1px solid #EEE;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;}
+.topbar h1{font-family:'Nunito',sans-serif;font-weight:900;font-size:20px;color:#111;}
+.topbar p{font-size:13px;color:#888;margin-top:2px;}
+.btn-add{background:var(--pink);color:#fff;border:none;padding:10px 20px;border-radius:30px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;display:flex;align-items:center;gap:6px;transition:opacity .2s;}
+.btn-add:hover{opacity:.9;}
+
+/* CONTENT PANELS */
+.panel{display:none;padding:28px;flex:1;}
+.panel.active{display:block;}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
+.stat-card{background:#fff;border-radius:16px;padding:20px;border:2px solid #F0F0F0;transition:border-color .2s;}
+.stat-card:hover{border-color:var(--pink);}
+.stat-label{font-size:12px;color:#999;font-weight:700;letter-spacing:.03em;text-transform:uppercase;}
+.stat-value{font-family:'Nunito',sans-serif;font-weight:900;font-size:32px;color:#111;margin:6px 0 2px;}
+.stat-sub{font-size:12px;color:var(--teal);font-weight:600;}
+.stat-card.pink .stat-value{color:var(--pink);}
+.stat-card.yellow .stat-value{color:#D97706;}
+.stat-card.teal .stat-value{color:var(--teal);}
+
+/* SECTION HEADER */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.section-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:16px;color:#111;}
+
+/* FAQ FORM */
+.form-card{background:#fff;border-radius:16px;border:2px solid var(--pink);padding:20px;margin-bottom:20px;display:none;}
+.form-card.show{display:block;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-full{grid-column:1/-1;}
+label{display:block;font-size:11px;font-weight:700;color:#888;letter-spacing:.04em;text-transform:uppercase;margin-bottom:5px;}
+input,textarea,select{width:100%;padding:10px 12px;border:2px solid #EEE;border-radius:10px;font-family:'Nunito Sans',sans-serif;font-size:13px;color:#111;background:#FAFAFA;transition:border-color .2s;outline:none;}
+input:focus,textarea:focus{border-color:var(--pink);background:#fff;}
+textarea{min-height:80px;resize:vertical;}
+.form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;}
+.btn-save{background:var(--pink);color:#fff;border:none;padding:10px 24px;border-radius:30px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;}
+.btn-save:hover{opacity:.9;}
+.btn-cancel{background:#fff;color:#888;border:2px solid #EEE;padding:10px 20px;border-radius:30px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;}
+.btn-cancel:hover{border-color:#CCC;}
+
+/* FAQ LIST */
+.faq-list{display:flex;flex-direction:column;gap:10px;}
+.faq-item{background:#fff;border-radius:16px;border:2px solid #F0F0F0;padding:16px 20px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;transition:border-color .2s;}
+.faq-item:hover{border-color:var(--pink);}
+.faq-body{flex:1;}
+.faq-q{font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;color:#111;margin-bottom:6px;}
+.faq-a{font-size:13px;color:#666;line-height:1.6;margin-bottom:8px;}
+.faq-keywords{display:flex;gap:6px;flex-wrap:wrap;}
+.kw-tag{background:#FBEAF0;color:var(--pink-dark);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;}
+.faq-actions{display:flex;gap:6px;flex-shrink:0;}
+.btn-icon{background:transparent;border:2px solid #EEE;width:34px;height:34px;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.btn-icon:hover{border-color:var(--pink);}
+.btn-icon.del:hover{border-color:#EF4444;background:#FEF2F2;}
+.empty-state{text-align:center;padding:48px;color:#AAA;font-size:14px;}
+.empty-state svg{margin-bottom:12px;opacity:.4;}
+
+/* CONFIG FORM */
+.config-card{background:#fff;border-radius:16px;padding:24px;border:2px solid #F0F0F0;max-width:560px;}
+.config-section{margin-bottom:20px;}
+.saved-toast{display:none;background:var(--teal);color:#fff;font-size:13px;font-weight:700;padding:10px 20px;border-radius:30px;position:fixed;bottom:28px;right:28px;z-index:999;}
+.saved-toast.show{display:block;animation:slideup .3s ease;}
+@keyframes slideup{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* WA SIMULATOR */
+.simulator-wrap{display:grid;grid-template-columns:1fr 360px;gap:24px;align-items:start;}
+.sim-info{background:#fff;border-radius:16px;padding:20px;border:2px solid #F0F0F0;}
+.sim-info h3{font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;color:#111;margin-bottom:6px;}
+.sim-info p{font-size:13px;color:#777;line-height:1.6;}
+.sim-faq-preview{margin-top:16px;display:flex;flex-direction:column;gap:8px;}
+.sim-faq{background:#FAFAFA;border-radius:10px;padding:10px 14px;font-size:13px;color:#555;cursor:pointer;border:2px solid transparent;transition:all .15s;}
+.sim-faq:hover{border-color:var(--pink);color:var(--pink-dark);}
+.wa-phone{background:#E5DDD5;border-radius:24px;overflow:hidden;border:6px solid #111;box-shadow:0 20px 40px rgba(0,0,0,.2);}
+.wa-topbar{background:#075E54;padding:14px 16px;display:flex;align-items:center;gap:10px;}
+.wa-avatar{width:36px;height:36px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.wa-info h4{color:#fff;font-size:14px;font-weight:700;}
+.wa-info p{color:rgba(255,255,255,.7);font-size:11px;}
+.wa-msgs{height:360px;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;}
+.msg{max-width:78%;padding:9px 13px;border-radius:10px;font-size:13px;line-height:1.5;position:relative;}
+.msg.user{background:#DCF8C6;align-self:flex-end;border-radius:10px 2px 10px 10px;color:#111;}
+.msg.bot{background:#fff;align-self:flex-start;border-radius:2px 10px 10px 10px;color:#111;}
+.msg .time{font-size:10px;color:#999;margin-top:4px;text-align:right;}
+.typing-dots{display:none;align-items:center;gap:4px;background:#fff;padding:12px 14px;border-radius:2px 10px 10px 10px;align-self:flex-start;}
+.typing-dots.show{display:flex;}
+.dot{width:7px;height:7px;border-radius:50%;background:#AAA;animation:bounce 1s infinite;}
+.dot:nth-child(2){animation-delay:.2s;}
+.dot:nth-child(3){animation-delay:.4s;}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-5px);}}
+.wa-input-bar{background:#F0F0F0;padding:8px 10px;display:flex;gap:8px;align-items:center;}
+.wa-input{flex:1;padding:9px 14px;border-radius:20px;border:none;font-size:13px;font-family:'Nunito Sans',sans-serif;background:#fff;outline:none;color:#111;}
+.wa-send-btn{width:38px;height:38px;border-radius:50%;background:#075E54;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;}
+
+/* LOGS */
+.logs-table{width:100%;background:#fff;border-radius:16px;overflow:hidden;border:2px solid #F0F0F0;}
+.logs-table th{background:#FAFAFA;padding:12px 16px;font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.04em;text-align:left;border-bottom:1px solid #F0F0F0;}
+.logs-table td{padding:12px 16px;font-size:13px;color:#444;border-bottom:1px solid #F5F5F5;}
+.logs-table tr:last-child td{border-bottom:none;}
+.badge-hit{background:#ECFDF5;color:#065F46;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;}
+.badge-miss{background:#FEF2F2;color:#991B1B;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;}
+
+@media(max-width:900px){
+  .sidebar{width:60px;}
+  .logo-sub,.nav-item span,.sidebar-footer,.nav-section{display:none;}
+  .nav-item{justify-content:center;padding:12px;}
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .simulator-wrap{grid-template-columns:1fr;}
+  .form-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <a class="logo" href="/">WA<span>·</span>BOT</a>
+    <div class="logo-sub">Panel de administración</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">Principal</div>
+    <a class="nav-item active" onclick="switchPanel('stats',this)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+      <span>Resumen</span>
+    </a>
+    <a class="nav-item" onclick="switchPanel('faqs',this)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4a2 2 0 00-2 2v18l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2z"/></svg>
+      <span>FAQs</span>
+    </a>
+    <div class="nav-section">Configuración</div>
+    <a class="nav-item" onclick="switchPanel('config',this)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
+      <span>Configuración</span>
+    </a>
+    <a class="nav-item" onclick="switchPanel('simulator',this)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+      <span>Simulador</span>
+    </a>
+    <a class="nav-item" onclick="switchPanel('logs',this)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+      <span>Historial</span>
+    </a>
+  </div>
+  <div class="sidebar-footer">
+    <a class="btn-landing" href="/">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span>Ver landing</span>
+    </a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- STATS PANEL -->
+  <div id="panel-stats" class="panel active">
+    <div class="topbar" style="padding:0 0 20px;background:transparent;border:none;">
+      <div><h1 style="font-family:'Nunito';font-weight:900;font-size:22px;color:#111;">Bienvenido al panel</h1><p style="font-size:13px;color:#888;margin-top:2px;">Aquí tienes un resumen de tu asistente.</p></div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card pink">
+        <div class="stat-label">FAQs activas</div>
+        <div class="stat-value" id="s-faqs">—</div>
+        <div class="stat-sub">configuradas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Mensajes totales</div>
+        <div class="stat-value" id="s-msgs">—</div>
+        <div class="stat-sub">recibidos</div>
+      </div>
+      <div class="stat-card teal">
+        <div class="stat-label">Respondidos</div>
+        <div class="stat-value" id="s-matched">—</div>
+        <div class="stat-sub">por el bot</div>
+      </div>
+      <div class="stat-card yellow">
+        <div class="stat-label">Tasa de acierto</div>
+        <div class="stat-value" id="s-rate">—</div>
+        <div class="stat-sub">promedio</div>
+      </div>
+    </div>
+    <div class="section-header"><div class="section-title">Últimas FAQs configuradas</div></div>
+    <div class="faq-list" id="stats-faqs-preview"></div>
+  </div>
+
+  <!-- FAQS PANEL -->
+  <div id="panel-faqs" class="panel">
+    <div class="topbar" style="padding:0 0 20px;background:transparent;border:none;">
+      <div><h1 style="font-family:'Nunito';font-weight:900;font-size:22px;color:#111;">Preguntas frecuentes</h1><p style="font-size:13px;color:#888;margin-top:2px;">Define qué responderá tu asistente.</p></div>
+      <button class="btn-add" onclick="toggleFAQForm()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        Nueva FAQ
+      </button>
+    </div>
+    <div class="form-card" id="faq-form">
+      <div class="form-grid">
+        <div class="form-full">
+          <label>Pregunta que escribirá el cliente</label>
+          <input type="text" id="f-q" placeholder="Ej: ¿Cuál es el horario de atención?">
+        </div>
+        <div>
+          <label>Palabras clave (separar con comas)</label>
+          <input type="text" id="f-kw" placeholder="horario, abierto, abrir">
+        </div>
+        <div>
+          <label>Respuesta del asistente</label>
+          <input type="text" id="f-a-short" placeholder="Resumen corto (opcional)">
+        </div>
+        <div class="form-full">
+          <label>Respuesta completa</label>
+          <textarea id="f-a" placeholder="Estamos abiertos de lunes a viernes de 9h a 18h y sábados de 10h a 14h."></textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-cancel" onclick="toggleFAQForm()">Cancelar</button>
+        <button class="btn-save" onclick="saveFAQ()">Guardar FAQ</button>
+      </div>
+    </div>
+    <div class="faq-list" id="faq-list"></div>
+  </div>
+
+  <!-- CONFIG PANEL -->
+  <div id="panel-config" class="panel">
+    <div class="topbar" style="padding:0 0 20px;background:transparent;border:none;">
+      <div><h1 style="font-family:'Nunito';font-weight:900;font-size:22px;color:#111;">Configuración</h1><p style="font-size:13px;color:#888;margin-top:2px;">Personaliza tu asistente.</p></div>
+    </div>
+    <div class="config-card">
+      <div class="config-section">
+        <label>Nombre del negocio</label>
+        <input type="text" id="cfg-name" placeholder="Mi Negocio">
+      </div>
+      <div class="config-section">
+        <label>Mensaje de bienvenida</label>
+        <textarea id="cfg-welcome" placeholder="¡Hola! Soy el asistente de Mi Negocio..."></textarea>
+      </div>
+      <div class="config-section">
+        <label>Mensaje cuando no hay respuesta (fallback)</label>
+        <textarea id="cfg-fallback" placeholder="Lo siento, un agente te contactará pronto."></textarea>
+      </div>
+      <div class="config-section">
+        <label>Número WhatsApp Business (con +34...)</label>
+        <input type="text" id="cfg-phone" placeholder="+34 612 345 678">
+      </div>
+      <div class="config-section">
+        <label>Token Twilio / Meta API (opcional)</label>
+        <input type="password" id="cfg-token" placeholder="••••••••••••••••">
+      </div>
+      <button class="btn-save" onclick="saveConfig()">Guardar configuración</button>
+    </div>
+  </div>
+
+  <!-- SIMULATOR PANEL -->
+  <div id="panel-simulator" class="panel">
+    <div class="topbar" style="padding:0 0 20px;background:transparent;border:none;">
+      <div><h1 style="font-family:'Nunito';font-weight:900;font-size:22px;color:#111;">Simulador WhatsApp</h1><p style="font-size:13px;color:#888;margin-top:2px;">Prueba tu asistente antes de conectarlo.</p></div>
+    </div>
+    <div class="simulator-wrap">
+      <div>
+        <div class="sim-info">
+          <h3>Haz clic en una FAQ para probarla</h3>
+          <p>O escribe tu propio mensaje en el chat para ver cómo responde el bot con las FAQs que has configurado.</p>
+          <div class="sim-faq-preview" id="sim-faqs"></div>
+        </div>
+      </div>
+      <div class="wa-phone">
+        <div class="wa-topbar">
+          <div class="wa-avatar">🤖</div>
+          <div class="wa-info">
+            <h4 id="wa-bot-name">WA·BOT</h4>
+            <p>en línea ahora</p>
+          </div>
+        </div>
+        <div class="wa-msgs" id="wa-msgs">
+          <div class="msg bot" id="wa-welcome-msg">¡Hola! 👋 Soy tu asistente.<div class="time" id="wa-welcome-time"></div></div>
+        </div>
+        <div class="typing-dots" id="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div class="wa-input-bar">
+          <input class="wa-input" id="wa-in" placeholder="Escribe un mensaje..." onkeydown="if(event.key==='Enter')sendWA()">
+          <button class="wa-send-btn" onclick="sendWA()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOGS PANEL -->
+  <div id="panel-logs" class="panel">
+    <div class="topbar" style="padding:0 0 20px;background:transparent;border:none;">
+      <div><h1 style="font-family:'Nunito';font-weight:900;font-size:22px;color:#111;">Historial de mensajes</h1><p style="font-size:13px;color:#888;margin-top:2px;">Todos los mensajes recibidos por el asistente.</p></div>
+      <button class="btn-add" style="background:#6B7280;" onclick="loadLogs()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+        Actualizar
+      </button>
+    </div>
+    <table class="logs-table" id="logs-table">
+      <thead><tr><th>Remitente</th><th>Mensaje</th><th>Respuesta</th><th>Estado</th><th>Fecha</th></tr></thead>
+      <tbody id="logs-body"><tr><td colspan="5" style="text-align:center;padding:32px;color:#AAA;">Cargando...</td></tr></tbody>
+    </table>
+  </div>
+
+</div><!-- /main -->
+
+<div class="saved-toast" id="toast">✓ Guardado correctamente</div>
+
+<script>
+let faqs = [];
+let editingId = null;
+let config = {};
+
+function nowTime(){
+  const n=new Date();
+  return n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');
+}
+
+document.getElementById('wa-welcome-time').textContent = nowTime();
+
+function switchPanel(name, el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  el.classList.add('active');
+  if(name==='stats') loadStats();
+  if(name==='faqs') loadFAQs();
+  if(name==='config') loadConfig();
+  if(name==='simulator') loadSimFAQs();
+  if(name==='logs') loadLogs();
+}
+
+async function loadStats(){
+  try{
+    const [sr, fr] = await Promise.all([fetch('/api/stats'), fetch('/api/faqs')]);
+    const s = await sr.json();
+    const f = await fr.json();
+    document.getElementById('s-faqs').textContent = s.total_faqs;
+    document.getElementById('s-msgs').textContent = s.total_messages;
+    document.getElementById('s-matched').textContent = s.matched;
+    document.getElementById('s-rate').textContent = s.hit_rate+'%';
+    const el = document.getElementById('stats-faqs-preview');
+    el.innerHTML = f.slice(0,3).map(faq=>`
+      <div class="faq-item">
+        <div class="faq-body"><div class="faq-q">${faq.question}</div><div class="faq-a">${faq.answer}</div></div>
+      </div>`).join('') || '<div class="empty-state">No hay FAQs aún.</div>';
+  }catch(e){console.warn('Stats fetch failed (dev mode)',e);}
+}
+
+async function loadFAQs(){
+  try{
+    const r = await fetch('/api/faqs');
+    faqs = await r.json();
+  }catch(e){faqs=getDemoFAQs();}
+  renderFAQs();
+}
+
+function getDemoFAQs(){
+  return [
+    {id:1,question:'¿Cuál es el horario de atención?',keywords:'horario,abierto,abrir',answer:'Estamos abiertos de lunes a viernes de 9h a 18h y sábados de 10h a 14h.'},
+    {id:2,question:'¿Cómo hago un pedido?',keywords:'pedido,comprar,encargar',answer:'Puedes hacer tu pedido por WhatsApp, en nuestra web o en tienda física.'},
+  ];
+}
+
+function renderFAQs(){
+  const el = document.getElementById('faq-list');
+  if(!faqs.length){el.innerHTML='<div class="empty-state"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 2H4a2 2 0 00-2 2v18l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2z"/></svg><p>No hay FAQs. Añade la primera.</p></div>';return;}
+  el.innerHTML=faqs.map(f=>`
+    <div class="faq-item">
+      <div class="faq-body">
+        <div class="faq-q">${f.question}</div>
+        <div class="faq-a">${f.answer}</div>
+        <div class="faq-keywords">${f.keywords.split(',').filter(k=>k.trim()).map(k=>`<span class="kw-tag">${k.trim()}</span>`).join('')}</div>
+      </div>
+      <div class="faq-actions">
+        <button class="btn-icon" onclick="editFAQ(${f.id})" title="Editar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#666"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+        </button>
+        <button class="btn-icon del" onclick="deleteFAQ(${f.id})" title="Eliminar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#EF4444"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        </button>
+      </div>
+    </div>`).join('');
+}
+
+function toggleFAQForm(){
+  const f=document.getElementById('faq-form');
+  f.classList.toggle('show');
+  if(!f.classList.contains('show')){clearFAQForm();editingId=null;}
+}
+
+function clearFAQForm(){
+  ['f-q','f-kw','f-a-short','f-a'].forEach(id=>document.getElementById(id).value='');
+}
+
+async function saveFAQ(){
+  const q=document.getElementById('f-q').value.trim();
+  const kw=document.getElementById('f-kw').value.trim();
+  const a=document.getElementById('f-a').value.trim()||document.getElementById('f-a-short').value.trim();
+  if(!q||!a){alert('La pregunta y respuesta son obligatorias.');return;}
+  try{
+    if(editingId){
+      await fetch('/api/faqs/'+editingId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q,keywords:kw,answer:a})});
+    }else{
+      await fetch('/api/faqs',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q,keywords:kw,answer:a})});
+    }
+  }catch(e){
+    if(editingId){const idx=faqs.findIndex(f=>f.id===editingId);if(idx>-1)faqs[idx]={id:editingId,question:q,keywords:kw,answer:a};}
+    else faqs.push({id:Date.now(),question:q,keywords:kw,answer:a});
+  }
+  toggleFAQForm();
+  await loadFAQs();
+  showToast('FAQ guardada');
+}
+
+function editFAQ(id){
+  const f=faqs.find(x=>x.id===id);if(!f)return;
+  editingId=id;
+  document.getElementById('f-q').value=f.question;
+  document.getElementById('f-kw').value=f.keywords;
+  document.getElementById('f-a').value=f.answer;
+  document.getElementById('faq-form').classList.add('show');
+  document.getElementById('faq-form').scrollIntoView({behavior:'smooth'});
+}
+
+async function deleteFAQ(id){
+  if(!confirm('¿Eliminar esta FAQ?'))return;
+  try{await fetch('/api/faqs/'+id,{method:'DELETE'});}catch(e){}
+  faqs=faqs.filter(f=>f.id!==id);
+  renderFAQs();
+  showToast('FAQ eliminada');
+}
+
+async function loadConfig(){
+  try{
+    const r=await fetch('/api/config');
+    config=await r.json();
+  }catch(e){config={business_name:'Mi Negocio',welcome_msg:'¡Hola! 👋 Soy tu asistente.',fallback_msg:'Un agente te contactará pronto.',phone:'+34 612 345 678'};}
+  document.getElementById('cfg-name').value=config.business_name||'';
+  document.getElementById('cfg-welcome').value=config.welcome_msg||'';
+  document.getElementById('cfg-fallback').value=config.fallback_msg||'';
+  document.getElementById('cfg-phone').value=config.phone||'';
+  document.getElementById('wa-bot-name').textContent=config.business_name||'WA·BOT';
+}
+
+async function saveConfig(){
+  const data={
+    business_name:document.getElementById('cfg-name').value,
+    welcome_msg:document.getElementById('cfg-welcome').value,
+    fallback_msg:document.getElementById('cfg-fallback').value,
+    phone:document.getElementById('cfg-phone').value,
+  };
+  try{await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});}catch(e){}
+  config=data;
+  document.getElementById('wa-bot-name').textContent=data.business_name||'WA·BOT';
+  document.getElementById('wa-welcome-msg').innerHTML=(data.welcome_msg||'¡Hola!')+`<div class="time">${nowTime()}</div>`;
+  showToast('Configuración guardada');
+}
+
+function findAnswer(text){
+  const lower=text.toLowerCase();
+  for(const f of faqs){
+    const kws=f.keywords.split(',').map(k=>k.trim().toLowerCase()).filter(Boolean);
+    if(kws.some(kw=>kw&&lower.includes(kw)))return f.answer;
+    if(f.question.toLowerCase().replace(/[¿?]/g,'').substring(0,15)&&lower.includes(f.question.toLowerCase().replace(/[¿?]/g,'').substring(0,12)))return f.answer;
+  }
+  return null;
+}
+
+function addWAMsg(text, type){
+  const msgs=document.getElementById('wa-msgs');
+  const d=document.createElement('div');
+  d.className='msg '+type;
+  d.innerHTML=text+`<div class="time">${nowTime()}</div>`;
+  msgs.appendChild(d);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+async function sendWA(){
+  const inp=document.getElementById('wa-in');
+  const text=inp.value.trim();if(!text)return;
+  inp.value='';
+  addWAMsg(text,'user');
+
+  const typing=document.getElementById('typing');
+  const msgs=document.getElementById('wa-msgs');
+  msgs.appendChild(typing);
+  typing.classList.add('show');
+  msgs.scrollTop=msgs.scrollHeight;
+
+  try{
+    const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,sender:'simulator'})});
+    const data=await r.json();
+    setTimeout(()=>{
+      typing.classList.remove('show');
+      addWAMsg(data.response,'bot');
+    },700+Math.random()*500);
+  }catch(e){
+    const ans=findAnswer(text)||config.fallback_msg||'Lo siento, no tengo respuesta para eso.';
+    setTimeout(()=>{typing.classList.remove('show');addWAMsg(ans,'bot');},700);
+  }
+}
+
+function loadSimFAQs(){
+  if(!faqs.length)loadFAQs().then(renderSimFAQs);
+  else renderSimFAQs();
+}
+
+function renderSimFAQs(){
+  const el=document.getElementById('sim-faqs');
+  el.innerHTML=faqs.map(f=>`
+    <div class="sim-faq" onclick="testFAQ('${f.question.replace(/'/g,"\\'")}')">
+      ${f.question}
+    </div>`).join('');
+}
+
+function testFAQ(q){
+  document.getElementById('wa-in').value=q;
+  sendWA();
+}
+
+async function loadLogs(){
+  try{
+    const r=await fetch('/api/logs');
+    const logs=await r.json();
+    const tbody=document.getElementById('logs-body');
+    if(!logs.length){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:32px;color:#AAA;">No hay mensajes aún.</td></tr>';return;}
+    tbody.innerHTML=logs.slice().reverse().map(l=>`
+      <tr>
+        <td>${l.sender||'—'}</td>
+        <td>${l.message}</td>
+        <td style="max-width:220px;">${l.response}</td>
+        <td><span class="${l.matched?'badge-hit':'badge-miss'}">${l.matched?'Respondido':'Sin respuesta'}</span></td>
+        <td style="color:#AAA;">${new Date(l.timestamp).toLocaleString('es-ES')}</td>
+      </tr>`).join('');
+  }catch(e){
+    document.getElementById('logs-body').innerHTML='<tr><td colspan="5" style="text-align:center;padding:32px;color:#AAA;">Conéctate al servidor para ver el historial.</td></tr>';
+  }
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent='✓ '+msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+loadStats();
+loadFAQs();
+</script>
+</body>
+</html>
